@@ -601,6 +601,12 @@ function createPanZoom(domElement, options) {
       // handleTouchMove() will care about pinch zoom.
       pinchZoomLength = getPinchZoomLength(e.touches[0], e.touches[1]);
       multiTouch = true;
+      // for panning
+      var firstTouchPoint = getOffsetXY(e.touches[0]);
+      var secondTouchPoint = getOffsetXY(e.touches[1]);
+      mouseX = (firstTouchPoint.x + secondTouchPoint.x) / 2;
+      mouseY = (firstTouchPoint.y + secondTouchPoint.y) / 2;
+
       startTouchListenerIfNeeded();
     }
   }
@@ -689,15 +695,26 @@ function createPanZoom(domElement, options) {
 
       var firstTouchPoint = getOffsetXY(t1);
       var secondTouchPoint = getOffsetXY(t2);
-      mouseX = (firstTouchPoint.x + secondTouchPoint.x) / 2;
-      mouseY = (firstTouchPoint.y + secondTouchPoint.y) / 2;
+      var newX = (firstTouchPoint.x + secondTouchPoint.x) / 2;
+      var newY = (firstTouchPoint.y + secondTouchPoint.y) / 2;
       if (transformOrigin) {
         var offset = getTransformOriginOffset();
         mouseX = offset.x;
         mouseY = offset.y;
       }
 
-      publicZoomTo(mouseX, mouseY, scaleMultiplier);
+      // panning
+      var dx = newX - mouseX;
+      var dy = newY - mouseY;
+      if (dx !== 0 && dy !== 0) {
+        triggerPanStart();
+      }
+      internalMoveBy(dx, dy);
+      mouseX = newX;
+      mouseY = newY;
+      
+      // zooming
+      publicZoomTo(mouseX, mouseY , scaleMultiplier);
 
       pinchZoomLength = currentPinchLength;
       e.stopPropagation();
