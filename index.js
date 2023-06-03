@@ -808,8 +808,9 @@ function createPanZoom(domElement, options) {
     }
     // for IE, left click == 1
     // for Firefox, left click == 0
+    // TODO: make button changeabel in options, for now default is 2 === right button
     var isLeftButton =
-      (e.button === 1 && window.event !== null) || e.button === 0;
+      (e.button === 2 && window.event !== null) || e.button === 0;
     if (!isLeftButton) return;
 
     smoothScroll.cancel();
